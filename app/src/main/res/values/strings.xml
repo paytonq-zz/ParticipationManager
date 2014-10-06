@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Participation Manager</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_new">New Class</string>
+    <string name="One">1</string>
+    <string name="Two">2</string>
+    <string name="Three">3</string>
+    <string name="button_send">Store</string>
+    <string name="edit_message2">Enter student names.</string>
+    <string name="edit_message3">Enter class name.</string>
+    <string name="enter">Please enter the names of each of the students separated by a comma:</string>
+    <string name="random">Tap to call on a student who hasn\'t been called on recently:</string>
+    <string name="pick">Press to pick a random student.</string>
+    <string name="back_main">Back to the main screen</string>
+    <string name="title_activity_load_random">Student Picker</string>
+    <string name="action_about">About</string>
+
+</resources>
