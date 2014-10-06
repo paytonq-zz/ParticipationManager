@@ -47,8 +47,8 @@ public class MyActivity extends Activity  {
         setContentView(R.layout.activity_my);
         final ActionBar actionBar = getActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-        Tab tab1 = actionBar.newTab().setText("Classes");
-        Tab tab2 = actionBar.newTab().setText("Stats");
+        tab1 = actionBar.newTab().setText("Classes");
+        tab2 = actionBar.newTab().setText("Stats");
       //  Tab tab3 = actionBar.newTab().setText("3");
         File dir = new File(context.getFilesDir().getPath());
         String[] values = dir.list();
@@ -98,7 +98,7 @@ public class MyActivity extends Activity  {
                         "Participation Manager is licensed under " +
                         "the terms of the Mozilla Public License v2.0.  " +
                         "To view the terms of the Mozilla Public License v2.0 " +
-                        "tap 'License' below.").setCancelable(false);
+                        "tap 'License' below.").setCancelable(true);
                 builder.setPositiveButton("License", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
 
