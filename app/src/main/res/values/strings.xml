@@ -11,7 +11,7 @@
     <string name="button_send">Store</string>
     <string name="edit_message2">Enter student names.</string>
     <string name="edit_message3">Enter class name.</string>
-    <string name="enter">Please enter the names of each of the students separated by a comma:</string>
+    <string name="enter">Please enter the names of each of the students separated by a comma and a space:</string>
     <string name="random">Tap to call on a student who hasn\'t been called on recently:</string>
     <string name="pick">Press to pick a random student.</string>
     <string name="back_main">Back to the main screen</string>
