@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.qdev.tabtest" >
+    package="com.qdev.tabtest">
     <uses-sdk
         android:minSdkVersion="15"
         android:targetSdkVersion="20" />
@@ -29,15 +29,6 @@
             android:name="com.qdev.tabtest.CreateNew"
             android:label="@string/action_new"
             android:parentActivityName="com.qdev.tabtest.CreateNew" >
-            <!-- Parent activity meta-data to support 4.0 and lower -->
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.qdev.tabtest.MyActivity" />
-        </activity>
-        <activity
-            android:name="com.qdev.tabtest.LoadRandom"
-            android:label="@string/title_activity_load_random"
-            android:parentActivityName="com.qdev.tabtest.studentSelection" >
             <!-- Parent activity meta-data to support 4.0 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
