@@ -1,4 +1,4 @@
-package com.qdev.tabtest;
+package com.qdev.participationmanager;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;
