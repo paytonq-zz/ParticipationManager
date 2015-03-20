@@ -17,15 +17,19 @@ package com.qdev.tabtest;
 
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 import java.io.File;
@@ -37,34 +41,178 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Random;
 import java.util.Scanner;
-import java.util.Set;
 import java.util.TreeMap;
 
 
 // Creates a ListView consisting of all students in a certain class and allows the user to select
 // a student to be called on or have the application automatically select a student that has not
 // been called on recently.
-public class studentSelection extends Activity {
+public class studentSelection extends Activity implements AdapterView.OnItemLongClickListener {
     private ArrayList<String> values;
     private Map<String, Integer> studentMap;
     private String fileName;
-    private int i;
-    private final Context context = this;
+    private Context context;
     private final static String EXTRA_MESSAGE = "com.qdev.tabtest.MESSAGE";
+    private File dirName;
+    private ListView v;
 
     // Takes a Bundle and uses it to create a ListView of all students in the class that has been
     // passed.  Provides the user with the option to either choose a student to be called on or
     // automatically choose a student who has not been called on recently.
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
-        ListView v = new ListView(this);
+        v = new ListView(this);
+        v.setOnItemLongClickListener(this);
         Intent intent;
+        context = getApplicationContext();
         String message;
         intent = getIntent();
         message = intent.getStringExtra(fragmentTab1.EXTRA_MESSAGE);
         fileName = message + ".txt";
+        dirName = new File(context.getFilesDir().getPath(), fileName);
+        load(context);
+    }
+
+    // Takes a Menu and sets up an options button for the automatic student selection option.
+    // Returns a boolean indicating whether or not it is successful.
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu items for use in the action bar
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.secondary_activity_actions, menu);
+
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    // Takes a MenuItem and calls on a random student out of the students who have not been called
+    // on recently.  Returns a boolean indicating its success.
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle presses on the action bar items
+        switch (item.getItemId()) {
+            case R.id.action_auto:
+                Collection<Integer> v = studentMap.values();
+                if (v.isEmpty()) {
+                    int duration = Toast.LENGTH_LONG;
+                    Toast t = Toast.makeText(context, "Tap the plus sign to add students!", duration);
+                    t.show();
+                } else {
+                    int min = Collections.min(v);
+                    ArrayList<String> possibleStudents = new ArrayList<String>();
+                    for (String s : studentMap.keySet()) {
+                        if (studentMap.get(s) == min) {
+                            possibleStudents.add(s);
+                        }
+                    }
+                    Random r = new Random();
+                    int selected = r.nextInt(possibleStudents.size());
+                    String selectedStudent = possibleStudents.get(selected);
+                    callOnStudent(selectedStudent);
+                }
+                return true;
+            case R.id.action_new_student:
+                AlertDialog.Builder alert = new AlertDialog.Builder(this);
+                alert.setTitle("Enter name of new student:");
+                //alert.setMessage("Message");
+                final EditText input = new EditText(this);
+                input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
+                alert.setView(input);
+                alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        String value = input.getText().toString();
+                        File tempName = new File(context.getFilesDir().getPath(), "tempfile.txt");
+
+                        PrintStream tempWriter = null;
+                        try {
+                            tempWriter = new PrintStream(tempName);
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                        Scanner lineScan = null;
+                        try {
+                            lineScan = new Scanner(dirName);
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                        while (lineScan.hasNextLine()) {
+                            tempWriter.println(lineScan.nextLine());
+                        }
+                        tempWriter.println(value);
+                        tempWriter.println(0);
+                        dirName.delete();
+                        dirName = new File(context.getFilesDir().getPath(), fileName);
+                        tempName.renameTo(dirName);
+                        tempWriter.close();
+                        lineScan.close();
+                        load(context);
+                    }
+                });
+                alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        // Canceled.
+                    }
+                });
+                alert.show();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    // Allows user to delete a student from a class if long pressed
+    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+        CharSequence[] alertArray = {
+                getString(R.string.delete)
+        };
+        final int position2 = position;
+        System.out.println(position2);
+        final String studentName = values.get((int) id);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(studentName);
+        builder.setItems(alertArray, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                switch (i) {
+                    case 0:
+                        File tempName = new File(context.getFilesDir().getPath(), "tempfile.txt");
+                        PrintStream tempWriter = null;
+                        try {
+                            tempWriter = new PrintStream(tempName);
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                        Scanner lineScan = null;
+                        try {
+                            lineScan = new Scanner(dirName);
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                        int j = 0;
+                        while (lineScan.hasNextLine()) {
+                            String first = lineScan.nextLine();
+                            String second = lineScan.nextLine();
+                            if (position2 != j) {
+                                tempWriter.println(first);
+                                tempWriter.println(second);
+                            }
+                            j++;
+                        }
+                        dirName.delete();
+                        dirName = new File(context.getFilesDir().getPath(), fileName);
+                        tempName.renameTo(dirName);
+                        load(context);
+                        break;
+                }
+            }
+        });
+        AlertDialog a = builder.create();
+        a.show();
+        return true;
+    }
+
+    // Loads this activity's student ListView.  Used initially and to reload after deletions
+    public void load(Context c) {
         Scanner fileScan;
-        File dirName = new File(context.getFilesDir().getPath() + "/" + fileName);
         try {
             fileScan = new Scanner(dirName);
         } catch (FileNotFoundException e) {
@@ -75,12 +223,17 @@ public class studentSelection extends Activity {
         }
         String temp1;
         values = new ArrayList<String>();
+        if (!fileScan.hasNextLine()) {
+            int duration = Toast.LENGTH_LONG;
+            Toast t = Toast.makeText(context, "Tap the plus sign to add students!", duration);
+            t.show();
+        }
         while (fileScan.hasNextLine()) {
             temp1 = fileScan.nextLine();
             fileScan.nextLine();
-            values.add(i, temp1);
-            i++;
+            values.add(temp1);
         }
+        fileScan.close();
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
                 android.R.layout.simple_list_item_1, android.R.id.text1, values);
         v.setAdapter(adapter);
@@ -107,57 +260,19 @@ public class studentSelection extends Activity {
             count = Integer.parseInt(fileScan2.nextLine());
             studentMap.put(key, count);
         }
-        Set<String> valueSet = studentMap.keySet();
-        String[] valuesArray;
-        valuesArray = valueSet.toArray(new String[valueSet.size()]);
+        fileScan2.close();
         setContentView(v);
-    }
-
-    // Takes a Menu and sets up an options button for the automatic student selection option.
-    // Returns a boolean indicating whether or not it is successful.
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu items for use in the action bar
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.secondary_activity_actions, menu);
-
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    // Takes a MenuItem and calls on a random student out of the students who have not been called
-    // on recently.  Returns a boolean indicating its success.
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle presses on the action bar items
-        switch (item.getItemId()) {
-            case R.id.action_auto:
-                Collection<Integer> v = studentMap.values();
-                int min = Collections.min(v);
-                ArrayList<String> possibleStudents = new ArrayList<String>();
-                for (String s : studentMap.keySet()) {
-                    if (studentMap.get(s) == min) {
-                        possibleStudents.add(s);
-                    }
-                }
-                Random r = new Random();
-                int selected = r.nextInt(possibleStudents.size());
-                String selectedStudent = possibleStudents.get(selected);
-                callOnStudent(selectedStudent);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
     }
 
     // Is passed a string indicating which student should be called on.  The method then proceeds
     // to do the necessary operations required to "call on" that student.
     private void callOnStudent(String selectedStudent) {
         Context context = getApplicationContext();
-        int duration = Toast.LENGTH_LONG;
+        int duration = Toast.LENGTH_SHORT;
         Toast toast = Toast.makeText(context, selectedStudent + " has been called on.", duration);
         toast.show();
         studentMap.put(selectedStudent, studentMap.get(selectedStudent) + 1);
         Scanner fileScan;
-        File dirName;
-        dirName = new File(context.getFilesDir().getPath() + "/" + fileName);
         try {
             fileScan = new Scanner(dirName);
         } catch (FileNotFoundException e) {
@@ -169,7 +284,7 @@ public class studentSelection extends Activity {
         String key;
         String count;
         String line;
-        File tempName = new File(context.getFilesDir(), "tempfile.txt");
+        File tempName = new File(context.getFilesDir().getPath(), "tempfile.txt");
         PrintStream writer;
         try {
             writer = new PrintStream(tempName);
@@ -190,16 +305,8 @@ public class studentSelection extends Activity {
         }
         writer.close();
         fileScan.close();
-        PrintStream clear;
-        try {
-            clear = new PrintStream(dirName);
-        } catch (FileNotFoundException e) {
-            clear = null;
-        }
-        clear.print("");
         dirName.delete();
-        dirName = new File(context.getFilesDir().getPath() + "/" + fileName);
+        dirName = new File(context.getFilesDir().getPath(), fileName);
         tempName.renameTo(dirName);
-        clear.close();
     }
 }

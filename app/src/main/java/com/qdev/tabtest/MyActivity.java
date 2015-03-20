@@ -16,38 +16,39 @@
 package com.qdev.tabtest;
 
 import android.app.ActionBar;
-import android.app.ActionBar.Tab;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
-import android.app.ListFragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.Window;
+import android.widget.EditText;
+
 import java.io.File;
+import java.io.IOException;
 
 // Sets up the main activity containing an option for adding new classes, an "about" option,
 // and two tabs: one for calling on students from various classes, the other for
 // listing current statistics about each class and students within those classes.
-public class MyActivity extends Activity  {
+public class MyActivity extends Activity {
     private ActionBar.Tab tab1, tab2, tab3;
-    private ListFragment fragmentTab1;
-    private Fragment newClasses;
+    private fragmentTab1 fT1;
     private Fragment fragmentTab2;
-    // private Fragment fragmentTab3;
+    private ActionBar actionBar;
     private final Context context;
 
+    // Constructs a new MyActivity
     public MyActivity() {
-        fragmentTab1 = new fragmentTab1();
-        newClasses = new newClasses();
+        actionBar = null;
+        fT1 = new fragmentTab1();
         fragmentTab2 = new fragmentTab2();
-        // fragmentTab3 = new fragmentTab3();
         context = this;
     }
 
@@ -56,25 +57,22 @@ public class MyActivity extends Activity  {
         super.onCreate(savedInstanceState);
         getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
         setContentView(R.layout.activity_my);
-        final ActionBar actionBar = getActionBar();
+        actionBar = getActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
         tab1 = actionBar.newTab().setText("Classes");
         tab2 = actionBar.newTab().setText("Stats");
-      //  Tab tab3 = actionBar.newTab().setText("3");
         File dir = new File(context.getFilesDir().getPath());
         String[] values = dir.list();
         if (values.length == 0) {
-            tab1.setTabListener(new MyTabListener(newClasses));
-            tab2.setTabListener(new MyTabListener(newClasses));
+            tab1.setTabListener(new MyTabListener(fT1));
+            tab2.setTabListener(new MyTabListener(fragmentTab2));
         } else {
-            tab1.setTabListener(new MyTabListener(fragmentTab1));
+            tab1.setTabListener(new MyTabListener(fT1));
             tab2.setTabListener(new MyTabListener(fragmentTab2));
         }
         tab2.setTabListener(new MyTabListener(fragmentTab2));
-       // tab3.setTabListener(new MyTabListener(fragmentTab3));
         actionBar.addTab(tab1);
         actionBar.addTab(tab2);
-       // actionBar.addTab(tab3);
     }
 
     // Take a MenuItem and then loads app's options menu including the class addition option.
@@ -98,14 +96,39 @@ public class MyActivity extends Activity  {
         // Handle presses on the action bar items
         switch (item.getItemId()) {
             case R.id.action_new:
-                Intent newIntent = new Intent(this, CreateNew.class);
-                startActivity(newIntent);
+                AlertDialog.Builder alert = new AlertDialog.Builder(this);
+
+                alert.setTitle("Enter name of new class:");
+                final EditText input = new EditText(this);
+                input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
+                alert.setView(input);
+                alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        CharSequence value = input.getText();
+                        String fileName = value + ".txt";
+                        File dirName = new File(getApplicationContext().getFilesDir().getPath(), fileName);
+                        try {
+                            dirName.createNewFile();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        fT1.reload(context);
+                    }
+                });
+
+                alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        // Canceled.
+                    }
+                });
+
+                alert.show();
                 return true;
             case R.id.action_about:
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setTitle("About");
                 builder.setMessage("For instructions on using this application, please tap " +
-                        "'Visit Homepage' below.\n\n" +
+                        "'Visit Website' below.\n\n" +
                         "Participation Manager is licensed under " +
                         "the terms of the GNU General Public License v3.0.  " +
                         "To view the terms of the GNU General Public License v3.0 " +
@@ -118,18 +141,13 @@ public class MyActivity extends Activity  {
                         startActivity(browserIntent);
                     }
                 });
-                builder.setNeutralButton("Visit Homepage", new DialogInterface.OnClickListener() {
+                builder.setNeutralButton("Visit Website", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         Intent browserIntent = new Intent(Intent.ACTION_VIEW,
                                 Uri.parse("http://github.com/paytonq/ParticipationManager"));
                         startActivity(browserIntent);
                     }
                 });
-//                builder.setNegativeButton("Back", new DialogInterface.OnClickListener() {
-//                    public void onClick(DialogInterface dialog, int id) {
-//                        // User cancelled the dialog
-//                    }
-//                });
                 AlertDialog alertDialog = builder.create();
                 alertDialog.show();
                 return true;

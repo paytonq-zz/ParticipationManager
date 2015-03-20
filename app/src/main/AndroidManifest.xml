@@ -2,12 +2,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.qdev.tabtest">
     <uses-sdk
-        android:minSdkVersion="15"
-        android:targetSdkVersion="20" />
+        android:minSdkVersion="14"
+        android:targetSdkVersion="21" />
 
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-        android:maxSdkVersion="20" />
+        android:maxSdkVersion="21" />
 
     <application
 
@@ -26,17 +26,8 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.qdev.tabtest.CreateNew"
-            android:label="@string/action_new"
-            android:parentActivityName="com.qdev.tabtest.CreateNew" >
-            <!-- Parent activity meta-data to support 4.0 and lower -->
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.qdev.tabtest.MyActivity" />
-        </activity>
-        <activity
             android:name="com.qdev.tabtest.studentSelection"
-            android:label="Student Selection"
+            android:label="@string/selector"
             android:parentActivityName="com.qdev.tabtest.MyActivity" >
             <!-- Parent activity meta-data to support 4.0 and lower -->
             <meta-data

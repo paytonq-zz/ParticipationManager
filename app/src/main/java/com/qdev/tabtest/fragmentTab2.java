@@ -44,14 +44,17 @@ public class fragmentTab2 extends Fragment {
         File dirName;
         String name;
         String count;
-        for (int i = 0; i < values.length; i++) {
-            finalTextToDisplay += values[i] + "\n\n";
-            dirName = new File(getActivity().getFilesDir().getPath() + "/" + values[i] + ".txt");
+        for (String val : values) {
+            finalTextToDisplay += val + "\n\n";
+            dirName = new File(getActivity().getFilesDir().getPath() + "/" + val + ".txt");
             try {
                 fileScan = new Scanner(dirName);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
                 fileScan = null;
+            }
+            if (!fileScan.hasNextLine()) {
+                finalTextToDisplay += "\t" + "No students have been added to " + val + ".";
             }
             while (fileScan.hasNextLine()) {
                 name = fileScan.nextLine();

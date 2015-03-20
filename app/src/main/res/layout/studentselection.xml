@@ -5,11 +5,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".studentSelection"
+    android:baselineAligned="false"
     >
 
     <ListView
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:id="@android:id/list"
+        android:longClickable="true"
         android:layout_weight="1" />
 </LinearLayout>
